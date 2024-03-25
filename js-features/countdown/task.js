@@ -1,14 +1,16 @@
 "use strict"
 
-(function timerStart() {
+(function startTimer() {
 	const timer = document.getElementById("timer");
 	let hours = +timer.textContent.slice(0, 2);
 	let minutes = +timer.textContent.slice(3, 5);
 	let seconds = +timer.textContent.slice(-2);
 	let time = hours * 3600 + minutes * 60 + seconds;
-	setInterval(() => {
+	let intervalId = setInterval(() => {
 		if (time === 0) {
 			alert("Вы победили в конкурсе!");
+			window.location.assign("http://hello.kitty");
+			clearInterval(intervalId);
 			return;
 		}
 		time--;
