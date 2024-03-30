@@ -25,6 +25,21 @@ class Game {
       При неправильном вводе символа - this.fail();
       DOM-элемент текущего символа находится в свойстве this.currentSymbol.
      */
+
+		"use strict";
+
+		const symbols = Array.from(document.querySelectorAll(".symbol"));
+
+		symbols.forEach(symbol => {
+			symbol.addEventListener("keydown", event => {
+				this.currentSymbol = symbol;
+				if (event.key === this.currentSymbol) {
+					this.success();
+				} else {
+					this.fail();
+				}
+			});
+		});
   }
 
   success() {
@@ -90,5 +105,5 @@ class Game {
   }
 }
 
-new Game(document.getElementById('game'))
+new Game(document.getElementById('game'));
 
