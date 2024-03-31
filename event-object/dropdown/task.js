@@ -15,7 +15,8 @@
 	});
 
 	for (let dropDownItem of dropDownItems) {
-		dropDownItem.addEventListener("click", () => {
+		dropDownItem.addEventListener("click", event => {
+			event.preventDefault();
 			dropDownMenu.innerHTML = dropDownItem.textContent;
 			dropDownList.classList.remove("dropdown__list_active");
 		});

@@ -1,3 +1,5 @@
+"use strict";
+
 class Game {
   constructor(container) {
     this.container = container;
@@ -26,41 +28,67 @@ class Game {
       DOM-элемент текущего символа находится в свойстве this.currentSymbol.
      */
 
-		"use strict";
+		let intervalId;
+		this.startTimer();
+		document.body.addEventListener("keydown", event => {
+			if (event.key === this.currentSymbol.textContent) {
+				this.success(); 
+				clearInterval(intervalId);
+				startTimer();
+			}
+			else  {
+				this.fail();
 
-		const symbols = Array.from(document.querySelectorAll(".symbol"));
-
-		symbols.forEach(symbol => {
-			symbol.addEventListener("keydown", event => {
-				this.currentSymbol = symbol;
-				if (event.key === this.currentSymbol) {
-					this.success();
-				} else {
-					this.fail();
-				}
-			});
+				clearInterval(intervalId);
+				startTimer();
+			}
 		});
   }
 
+	startTimer(intervalId) {
+		debugger;
+		const loss = document.querySelector(".status__loss");
+		const symbols = Array.from(document.querySelectorAll(".symbol"));
+		const timer = document.querySelector(".status__timer");
+		timer.innerHTML = symbols.length;
+		let time = symbols.length;
+		let tryCounter = +loss.textContent;
+		intervalId = setInterval(() => {
+			if (time === 0 && tryCounter === 2) {
+				this.fail();
+				clearInterval(intervalId);
+				return;
+			} else if (time === 0) {
+				tryCounter++;
+      	this.fail();
+				timer.innerHTML = symbols.length;
+				time = symbols.length;
+			}
+			time--;
+			timer.innerHTML = time;
+		}, 1000);
+	}
+
   success() {
-    if(this.currentSymbol.classList.contains("symbol_current")) this.currentSymbol.classList.remove("symbol_current");
+		
+		if(this.currentSymbol.classList.contains("symbol_current")) this.currentSymbol.classList.remove("symbol_current");
     this.currentSymbol.classList.add('symbol_correct');
     this.currentSymbol = this.currentSymbol.nextElementSibling;
-
+		
     if (this.currentSymbol !== null) {
-      this.currentSymbol.classList.add('symbol_current');
+			this.currentSymbol.classList.add('symbol_current');
       return;
     }
-
+		
     if (++this.winsElement.textContent === 10) {
-      alert('Победа!');
+			alert('Победа!');
       this.reset();
     }
     this.setNewWord();
   }
 
   fail() {
-    if (++this.lossElement.textContent === 5) {
+    if (++this.lossElement.textContent === 3) {
       alert('Вы проиграли!');
       this.reset();
     }

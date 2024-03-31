@@ -46,8 +46,6 @@
   border-bottom: 1px solid gray;
   border-radius: 4px;
   background-color: #fff;
-
-	cursor: pointer;
 }
 
 .dropdown__list_active {
