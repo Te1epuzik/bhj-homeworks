@@ -6,6 +6,10 @@ class Game {
     this.wordElement = container.querySelector('.word');
     this.winsElement = container.querySelector('.status__wins');
     this.lossElement = container.querySelector('.status__loss');
+		this.symbols;
+		this.timer;
+
+		this.intervalId;
 
     this.reset();
 
@@ -28,49 +32,45 @@ class Game {
       DOM-элемент текущего символа находится в свойстве this.currentSymbol.
      */
 
-		let intervalId;
 		this.startTimer();
 		document.body.addEventListener("keydown", event => {
 			if (event.key === this.currentSymbol.textContent) {
 				this.success(); 
-				clearInterval(intervalId);
-				startTimer();
 			}
 			else  {
 				this.fail();
-
-				clearInterval(intervalId);
-				startTimer();
 			}
 		});
   }
 
-	startTimer(intervalId) {
-		debugger;
-		const loss = document.querySelector(".status__loss");
-		const symbols = Array.from(document.querySelectorAll(".symbol"));
-		const timer = document.querySelector(".status__timer");
-		timer.innerHTML = symbols.length;
-		let time = symbols.length;
-		let tryCounter = +loss.textContent;
-		intervalId = setInterval(() => {
+	startTimer() {
+		if (this.intervalId) {
+			clearInterval(this.intervalId);
+		}
+
+		this.lossElement = document.querySelector('.status__loss');
+		this.symbols = Array.from(document.querySelectorAll(".symbol"));
+		this.timer = document.querySelector(".status__timer");
+		this.timer.innerHTML = this.symbols.length;
+		let time = this.symbols.length;
+		let tryCounter = +this.lossElement.textContent;
+		this.intervalId = setInterval(() => {
 			if (time === 0 && tryCounter === 2) {
 				this.fail();
-				clearInterval(intervalId);
+				clearInterval(this.intervalId);
 				return;
 			} else if (time === 0) {
 				tryCounter++;
       	this.fail();
-				timer.innerHTML = symbols.length;
-				time = symbols.length;
+				this.timer.innerHTML = this.symbols.length;
+				time = this.symbols.length;
 			}
 			time--;
-			timer.innerHTML = time;
+			this.timer.innerHTML = time;
 		}, 1000);
 	}
 
   success() {
-		
 		if(this.currentSymbol.classList.contains("symbol_current")) this.currentSymbol.classList.remove("symbol_current");
     this.currentSymbol.classList.add('symbol_correct');
     this.currentSymbol = this.currentSymbol.nextElementSibling;
@@ -85,6 +85,7 @@ class Game {
       this.reset();
     }
     this.setNewWord();
+		this.startTimer();
   }
 
   fail() {
@@ -93,6 +94,7 @@ class Game {
       this.reset();
     }
     this.setNewWord();
+		this.startTimer();
   }
 
   setNewWord() {
