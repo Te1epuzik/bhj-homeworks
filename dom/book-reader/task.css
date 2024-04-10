@@ -2,15 +2,15 @@ body {
   margin: 0;
 }
 
-.bg_color_black {
+.bg-color_black {
   background: #000;
 }
 
-.bg_color_gray {
+.bg-color_gray {
   background: grey;
 }
 
-.bg_color_white {
+.bg-color_white {
   background: white;
 }
 
@@ -120,14 +120,14 @@ body {
   font-size: 28px;
 }
 
-.text_color_black {
+.text-color_black {
   background: #000;
 }
 
-.text_color_gray {
+.text-color_gray {
   background: grey;
 }
 
-.text_color_whitesmoke {
+.text-color_whitesmoke {
   background: whitesmoke;
 }
