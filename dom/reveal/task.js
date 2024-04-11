@@ -28,4 +28,7 @@ class elementRevealler {
 	}
 }
 
-new elementRevealler(document.querySelector(".reveal"))
+const revealBlocks = Array.from(document.querySelectorAll(".reveal"))
+
+new elementRevealler(revealBlocks[0]);
+new elementRevealler(revealBlocks[1]);

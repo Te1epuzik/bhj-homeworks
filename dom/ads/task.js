@@ -2,33 +2,50 @@
 
 class adSwitcher {
 	constructor(container) {
-		this.ad = container.querySelector(".rotator .rotator__case_active");
-		this.speed = +this.ad.getAttribute("data-speed");
-		this.color = this.ad.getAttribute("data-color");
+		this.currentAd = container.querySelector(".rotator .rotator__case_active");
+		this.speed = +this.currentAd.getAttribute("data-speed");
+		this.color = this.currentAd.getAttribute("data-color");
+		this.timerId = null;
 
-		this.switchAd();
+		this.startAd();
+	}
+
+	startAd() {
+		if (this.timerId) {
+			clearTimeout(this.timerId);
+		}
+
+		this.currentAd.style.color = this.color;
+		this.loopTimeout();
 	}
 
 	switchAd() {
-		this.ad.style.color = this.color;
-		setInterval(() => {
-			this.ad.classList.remove("rotator__case_active");
+		this.currentAd.style.color = this.color;
+		this.currentAd.classList.remove("rotator__case_active");
 
-			if (this.ad.nextElementSibling) {
-				this.ad = this.ad.nextElementSibling;
-				this.color = this.ad.getAttribute("data-color");
-				this.speed = this.ad.getAttribute("data-speed");
-				
-			}  else {
-				this.ad = this.ad.parentElement.firstElementChild;
-				this.color = this.ad.getAttribute("data-color");
-				this.speed = this.ad.getAttribute("data-speed");
-			};
+		if (this.currentAd.nextElementSibling) {
+			this.currentAd = this.currentAd.nextElementSibling;	
+		}  else {
+			this.currentAd = this.currentAd.parentElement.firstElementChild;
+		};
+
+		this.color = this.currentAd.getAttribute("data-color");
+		this.speed = this.currentAd.getAttribute("data-speed");
 			
-			this.ad.style.color = this.color;
-			this.ad.classList.add("rotator__case_active");
+		this.currentAd.style.color = this.color;
+		this.currentAd.classList.add("rotator__case_active");
+	}
+
+	loopTimeout() {
+		if (this.timerId) {
+			clearTimeout(this.timerId)
+		}
+
+		this.timerId = setTimeout(() => {
+			this.switchAd();
+			this.loopTimeout();
 		}, this.speed);
 	}
 }
 
-new adSwitcher(document.querySelector(".card"))
+new adSwitcher(document.querySelector(".card"));
