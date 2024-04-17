@@ -1,6 +1,15 @@
 body {
   font-family: Arial;
 }
+
+.cart {
+	display: none;
+}
+
+.cart__active {
+	display: block;
+}
+
 .cart__products {
   display: flex;
   justify-content: center;
@@ -26,6 +35,23 @@ body {
   height: 100px;
   object-fit: contain;
 }
+
+.cart__product-delete {
+	display: block;
+	position: absolute;
+	top: -5px;
+	left: 10px;
+
+	color: lightgray;
+	font-size: 20px;
+	cursor: pointer;
+	user-select: none;
+}
+
+.cart__product-delete:hover {
+	color: gray;
+}
+
 .product {
   display: flex;
   flex-wrap: wrap;
@@ -62,6 +88,8 @@ body {
   justify-content: center;
   align-items: center;
   font-weight: bold;
+
+	user-select: none;
 }
 
 .product__quantity-control:hover {
@@ -80,6 +108,8 @@ body {
   color: #fff;
   border-radius: 5px;
   cursor: pointer;
+
+	user-select: none;
 }
 
 .product__add:hover {
