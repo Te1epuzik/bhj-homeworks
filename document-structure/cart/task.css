@@ -16,6 +16,12 @@ body {
   align-items: center;
 }
 
+.cart__product-image_animated {
+	position: absolute;
+	transition-property: top, left;
+	/* transition-duration: 3ms; */
+}
+
 .cart__product {
   position: relative;
 }
