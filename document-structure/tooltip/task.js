@@ -46,6 +46,9 @@ class Tooltip {
 				return;
 			}
 
+			this.links.forEach(link => {
+				link.nextElementSibling.classList.remove('tooltip_active');
+			});
 			event.target.nextElementSibling.classList.toggle('tooltip_active');
 		});
 	}
