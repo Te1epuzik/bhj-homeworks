@@ -1,113 +1,112 @@
 "use strict";
 
 class Poll {
-  constructor(container) {
-    this.xhr = new XMLHttpRequest();
-    this.xhrp = new XMLHttpRequest();
-
+	constructor(container) {
 		this.container = container;
-    this.pollTitle = container.querySelector('.poll__title');
-    this.pollAnswers = container.querySelector('.poll__answers');
+		this.pollTitle = container.querySelector('.poll__title');
+		this.pollAnswers = container.querySelector('.poll__answers');
+		this.currentQuestionId = null;
 
-    this.getRequest();
-  }
+		this.startPoll();
+	}
 
-  startPoll() {
-    
-  }
+	static URL = 'https://students.netoservices.ru/nestjs-backend/poll';
 
-  getRequest() {
-    this.xhr.open('GET', 'https://students.netoservices.ru/nestjs-backend/poll');
+	startPoll() {
+		this.sendRequest('GET', Poll.URL)
+			.then(response => {
+				this.currentQuestionId = response.id;
+				this.renderQuestion(response);
+				this.activateAnswers();
+			})
+			.catch(() => {
+				console.log('Не удалось загрузить опрос');
+			});
+	}
 
-    // try {
-    //   this.xhr.send();
-    //   setTimeout(() => {
-    //     if (this.xhr.status != 200) {
-    //       alert(`Ошибка ${this.xhr.status}: ${this.xhr.statusText}`);
-    //     }
-    //   }, 30000);
-    // } catch(err) {
-    //   alert("Запрос не удался");
-    //   return;
-    // }
+	sendRequest(method, url, body = null) {
+		return new Promise((resolve, reject) => {
+			const xhr = new XMLHttpRequest();
+			xhr.open(method, url);
 
-    this.xhr.send();
-    
-    this.xhr.addEventListener('readystatechange', () => {
-      if (this.xhr.readyState !== this.xhr.DONE) {
-        return;
-      }
-      
-      this.pollResponse = JSON.parse(this.xhr.response);
+			xhr.responseType = 'json';
+			xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
-      this.xhr.abort();
-      console.log(this.pollResponse);
-      this.pollTitle.insertAdjacentHTML('afterBegin', `${this.pollResponse.data.title}`);
-      
-      this.pollResponse.data.answers.forEach(answer => {
-        this.pollAnswers.insertAdjacentHTML('afterBegin', 
-        `<button class="poll__answer">
-        ${answer}
-        </button>`
-      );
-    });
+			xhr.addEventListener('load', () => {
+				if (xhr.status >= 400) {
+					reject(xhr.response);
+				} else {
+					console.log(xhr.response);
+					resolve(xhr.response);
+				}
+			});
 
-      this.postRequest();
-    });
-  }
+			xhr.addEventListener('error', () => {
+				reject(xhr.response);
+			});
 
-  postRequest() {
-    this.pollAnswers.addEventListener('click', event => {
-      if (!event.target.closest('.poll__answer')) {
-        return;
-      }
+			if (body instanceof Object) {
+				body = JSON.stringify(body);
+			}
 
-      alert('Ваш голос засчитан!');
-      this.xhrp.open('POST', 'https://students.netoservices.ru/nestjs-backend/poll');
-      this.xhrp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      const id = this.pollResponse.id;
-      const answerNum = this.pollResponse.data.answers.indexOf(event.target.textContent);
+			xhr.send(body);
+		});
+	}
 
-      // try {
-      //   this.xhr.send(`vote=${id}&answer=${answerNum}`);
-      //   if (this.xhr.status != 200) {
-      //     alert(`Ошибка ${this.xhr.status}: ${this.xhr.statusText}`);
-      //   }
-      // } catch(err) {
-      //   alert("Запрос не удался");
-      //   return;
-      // }
+	renderQuestion(response) {
+		this.pollTitle.insertAdjacentHTML('afterBegin', `${response.data.title}`);
 
-      this.xhrp.send(`vote=${id}&answer=${answerNum}`);
+		response.data.answers.forEach((answer, index) => {
+			this.pollAnswers.insertAdjacentHTML('afterBegin',
+				`<button class="poll__answer" data-index="${index}">
+			${answer}
+			</button>`
+			);
+		});
+	}
 
-      this.xhrp.addEventListener('readystatechange', () => {
-        if (this.xhrp.readyState !== this.xhrp.DONE) {
-          return;
-        }
-        
-        this.statResponse = JSON.parse(this.xhrp.response);
-        this.xhrp.abort();
-        console.log(this.statResponse);
-        this.pollAnswers.classList.remove('poll__answers_active');
-        let votesQuantity = 0;
-        this.statResponse.stat.forEach(item => {
-          votesQuantity += item.votes;
-        });
-        this.statResponse.stat.forEach((item, index) => {
-          this.pollTitle.insertAdjacentHTML('afterEnd', 
-          `<div class="stat__answers">
-          <p class="stat__answer" data-id="${index}">${item.answer}: <span class="stat__vote">${+(100 * item.votes / votesQuantity).toFixed(2)}%</span></p>
-          </div>`);
+	renderStat(data, clicked) {
+		this.pollAnswers.classList.remove('poll__answers_active');
+		let votesQuantity = 0;
 
-					
+		data.stat.forEach(item => {
+			votesQuantity += item.votes;
+		});
 
-					// if (index === answerNum) {
-					// 	this.container.querySelector(`[data-id="${index}"]`).style.fontWeight = 'bold';
-					// }
-        });
-      });
-    });
-  }
+		data.stat.forEach((item, index) => {
+			this.pollTitle.insertAdjacentHTML('afterEnd',
+				`<div class="stat__answers">
+					<p class="stat__answer" data-id="${index}">
+						${item.answer}: 
+						<span class="stat__vote">
+							${+(100 * item.votes / votesQuantity).toFixed(2)}%
+						</span>
+					</p>
+		    </div>`);
+		});
+
+		this.container.querySelector(`[data-id="${clicked}"]`).style.color = 'blue';
+	}
+
+	activateAnswers() {
+		this.pollAnswers.addEventListener('click', event => {
+			event.preventDefault();
+			if (!event.target.closest('.poll__answer')) {
+				return;
+			}
+
+			const clickedNum = event.target.getAttribute('data-index');
+
+			const body = `vote=${this.currentQuestionId}&answer=${clickedNum}`;
+
+			this.sendRequest('POST', Poll.URL, body)
+				.then(response => {
+					alert('Ваш голос засчитан!');
+					this.renderStat(response, clickedNum);
+				})
+				.catch(() => console.log('Ошибка'));
+		});
+	}
 }
 
 new Poll(document.querySelector('.card'));
