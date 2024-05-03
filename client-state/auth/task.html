@@ -32,10 +32,15 @@
                     <div class="row">
                         <button class="btn" id="signin__btn">Войти</button>
                     </div>
+										<span class="signin__error signin__error-empty">Введите данные!</span>
+										<span class="signin__error signin__error-success">Неверный логин/пароль</span>
                 </form>
             </div>
             <div class="welcome" id="welcome">
-                Добро пожаловать, пользователь #<span id="user_id"></span>
+								<div class="welcome__title">
+									Добро пожаловать, пользователь #<span id="user_id"></span>
+								</div>
+								<button type="button" class="btn" id="signout__btn">Выйти</button>
             </div>
         </div>
         </main>
