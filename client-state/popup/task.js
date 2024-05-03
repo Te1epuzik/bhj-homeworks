@@ -1,21 +1,50 @@
-"use strict"; 
+"use strict";
+
+class Cookies {
+	static set(key, value, days = null) {
+		const date = new Date();
+		const msInDay = 1000 * 3600 * 24;
+		let expires = '';
+		if (expires && !isNaN(+expires)) {
+			expires = `;expires=${new Date(+days * msInDay + date.getTime())}`;
+		}
+
+		document.cookie = key
+			+ '='
+			+ encodeURIComponent(value)
+			+ timeOfExist;
+	}
+
+	static get(key) {
+		const cookie = document.cookie
+			.split('; ')
+			.find(cookie => cookie.startsWith(key + '='));
+
+		if (!cookie) {
+			return null;
+		}
+
+		return cookie.substring(key.length + 1);
+	}
+
+	static remove(key) {
+		document.cookie = key + `=;expires=${new Date(0)}`;
+	}
+}
 
 class Popup {
 	constructor(container) {
 		this.modal = container;
-		this.status = false;
 
 		this.showModal();
 	}
-	
-	checkStatus() {
-		this.status = Boolean(localStorage.getItem('popup'));
+
+	static isActive() {
+		return Boolean(Cookies.get('modalStatus'));
 	}
-	
+
 	showModal() {
-		this.checkStatus();
-		
-		if (this.status) {
+		if (Popup.isActive()) {
 			return;
 		}
 
@@ -26,7 +55,7 @@ class Popup {
 			}
 
 			event.target.closest('.modal').classList.remove('modal_active');
-			localStorage.setItem('popup', 'true')
+			Cookies.set('modalStatus', 'true', 90);
 		});
 	}
 }
