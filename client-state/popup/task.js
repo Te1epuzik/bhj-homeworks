@@ -12,7 +12,7 @@ class Cookies {
 		document.cookie = key
 			+ '='
 			+ encodeURIComponent(value)
-			+ timeOfExist;
+			+ expires;
 	}
 
 	static get(key) {
