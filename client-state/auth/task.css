@@ -1,8 +1,17 @@
+#signin__form {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
 .signin {
   display: none;
 }
 .signin_active {
   display: block;
+}
+.row {
+	width: 100%;
 }
 .control {
     width: 100%;
@@ -41,7 +50,28 @@
   display: none;
 }
 
+.welcome__title {
+	margin-bottom: 20px;
+}
+
 .welcome_active {
   display: block;
   text-align: center;
+}
+
+.signin__error_active {
+	display: block !important;
+}
+
+.signin__error {
+	display: none;
+	font-family: Golos, Arial, sans-serif;
+  color: #fff;
+  background-color: red;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  box-sizing: border-box;
+  padding: 2px 6px;
+  text-align: center;
+  font-weight: 500;
 }
