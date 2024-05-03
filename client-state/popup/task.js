@@ -5,7 +5,7 @@ class Cookies {
 		const date = new Date();
 		const msInDay = 1000 * 3600 * 24;
 		let expires = '';
-		if (expires && !isNaN(+expires)) {
+		if (days && !isNaN(+days)) {
 			expires = `;expires=${new Date(+days * msInDay + date.getTime())}`;
 		}
 
