@@ -11,12 +11,17 @@ class FileLoader {
 
 	static URL = 'https://students.netoservices.ru/nestjs-backend/upload';
 
-	sendRequest(method, URL, body = null) {
+	sendRequest(options = {
+		method: 'GET',
+		url,
+		body: null,
+		async: true,
+	}) {
 		return new Promise((resolve, reject) => {
 			const xhr = new XMLHttpRequest();
-			xhr.open(method, URL, true);
+			xhr.open(options.method, options.url, options.async);
 			xhr.responseType = 'json';
-			xhr.setRequestHeader('Content-type', 'application/json');
+			xhr.setRequestHeader('Content-type', 'multipart/form-data');
 
 			xhr.addEventListener('load', event => {
 				event.preventDefault();
@@ -24,19 +29,20 @@ class FileLoader {
 				if (xhr.status >= 400) {
 					reject(xhr.response);
 				} else {
-					console.log(xhr.response);
 					resolve(xhr.response);
 				}
 			});
 			
-			if (!(body instanceof String)) {
-				body = JSON.stringify(body);
-			}
 			
 			xhr.upload.addEventListener('progress', event => {
-				console.log(event.loaded);
+				this.progress.value = event.loaded / event.total;
 			});
-			xhr.send(body);
+			
+			if (!options.body) {
+				xhr.send();
+			} else {
+				xhr.send(options.body);
+			}
 		});
 	}
 	
@@ -46,9 +52,23 @@ class FileLoader {
 			if (!this.fileInput.files[0]) {
 				return;
 			}
-			console.log(this.fileInput.files[0]);
-			const body = this.fileInput.files[0];
-			this.sendRequest('POST', FileLoader.URL, body);
+
+			const formData = new FormData(this.form);
+			formData.forEach(data => {
+				console.log(data);
+			});
+			this.sendRequest({
+				method: 'POST', 
+				url: FileLoader.URL, 
+				body: formData,
+				async: true,
+			})
+			.then(response => {
+				console.log(response);
+			})
+			.catch(error => {
+				console.log(error);
+			});
 		});
 	}
 }
