@@ -1,18 +1,33 @@
 "use strict";
 
 class Cookies {
-	static set(key, value, days = null) {
-		const date = new Date();
-		const msInDay = 1000 * 3600 * 24;
-		let expires = '';
-		if (days && !isNaN(+days)) {
-			expires = `;expires=${new Date(+days * msInDay + date.getTime())}`;
-		}
+	static set(key, value, options = {
+		expires: null,
+		secure: false,
+		path: null,
+		domain: null,
+	}) {
 
 		document.cookie = key
 			+ '='
 			+ encodeURIComponent(value)
-			+ expires;
+			+ Cookies.paryOptions(options);
+	}
+
+	static paryOptions(options) {
+		const date = new Date();
+		const msInDay = 1000 * 3600 * 24;
+		let expiresInner = '';
+		let secureInner = '';
+		let pathInner = '';
+		let domainInner = '';
+		if (options.expires && !isNaN(+options.expires)) {
+			expiresInner = `;expires=${new Date(+options.expires * msInDay + date.getTime())}`;
+		}
+		if (options.secure) { secureInner = ';secure' }
+		if (options.path && options.path instanceof String) { pathInner = `;path=${options.path}` }
+		if (options.domain && options.domain instanceof String) { domainInner = `;domain=${options.domain}` }
+		return expiresInner + secureInner + pathInner + domainInner;
 	}
 
 	static get(key) {
@@ -96,44 +111,55 @@ class Auth {
 		});
 	}
 
+	removeErrors() {
+		this.errorSuccess.classList.remove('signin__error_active');
+		this.controls.forEach(control => {
+			control.addEventListener('input', () => {
+				if (!control.value) {
+					return;
+				}
+
+				this.errorEmpty.classList.remove('signin__error_active');
+			});
+		});
+	}
+
+	clearForm() {
+		this.controls.forEach(control => {
+			control.value = null;
+		});
+	}
+
+	getFormData() {
+		const body = {};
+		const form = new FormData(this.form);
+		for (let data of form) {
+			body[data[0]] = encodeURIComponent(data[1]);
+		}
+		return body;
+	}
+
 	login() {
 		this.isSigned();
 
 		this.form.addEventListener('submit', event => {
 			event.preventDefault();
-			this.errorSuccess.classList.remove('signin__error_active');
 
-			this.controls.forEach(control => {
-				control.addEventListener('input', () => {
-					if (!control.value) {
-						return;
-					}
-
-					this.errorEmpty.classList.remove('signin__error_active');
-				});
-			});
-
-			const body = {};
-			const form = new FormData(this.form);
-			for (let data of form) {
-				body[data[0]] = encodeURIComponent(data[1]);
-			}
-			console.log(body);
-			this.controls.forEach(control => {
-				control.value = null;
-			});
-			this.sendRequest('POST', Auth.url, body)
+			this.removeErrors();
+			this.sendRequest('POST', Auth.url, this.getFormData())
 				.then(response => {
+					this.clearForm();
 					console.log(response);
 					if (!response.success) {
 						this.errorSuccess.classList.add('signin__error_active');
 						return;
 					}
-
-					Cookies.set('id', response.user_id, 30);
+					
+					Cookies.set('id', response.user_id, { expires: 30 });
 					this.isSigned();
 				})
 				.catch(error => {
+					this.clearForm();
 					for (let i = 0; i < error.message.length; i++) {
 						console.log(error.message[i]);
 					}
