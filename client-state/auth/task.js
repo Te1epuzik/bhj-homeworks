@@ -58,10 +58,40 @@ class Auth {
 		this.form = container.querySelector('#signin__form');
 		this.signout = container.querySelector('#signout__btn');
 
-		this.login();
+		this.startlogin();
 	}
 
 	static url = 'https://students.netoservices.ru/nestjs-backend/auth';
+
+	startlogin() {
+		this.isSigned();
+
+		this.form.addEventListener('submit', event => {
+			event.preventDefault();
+
+			this.removeErrors();
+			this.sendRequest('POST', Auth.url, this.getFormData())
+				.then(response => {
+					this.clearForm();
+					console.log(response);
+					if (!response.success) {
+						this.errorSuccess.classList.add('signin__error_active');
+						return;
+					}
+
+					Cookies.set('id', response.user_id, { expires: 30 });
+					this.isSigned();
+				})
+				.catch(error => {
+					this.clearForm();
+					for (let i = 0; i < error.message.length; i++) {
+						console.log(error.message[i]);
+					}
+
+					this.errorEmpty.classList.add('signin__error_active');
+				});
+		});
+	}
 
 	sendRequest(method, url, body = null) {
 		return new Promise((resolve, reject) => {
@@ -137,36 +167,6 @@ class Auth {
 			body[data[0]] = encodeURIComponent(data[1]);
 		}
 		return body;
-	}
-
-	login() {
-		this.isSigned();
-
-		this.form.addEventListener('submit', event => {
-			event.preventDefault();
-
-			this.removeErrors();
-			this.sendRequest('POST', Auth.url, this.getFormData())
-				.then(response => {
-					this.clearForm();
-					console.log(response);
-					if (!response.success) {
-						this.errorSuccess.classList.add('signin__error_active');
-						return;
-					}
-					
-					Cookies.set('id', response.user_id, { expires: 30 });
-					this.isSigned();
-				})
-				.catch(error => {
-					this.clearForm();
-					for (let i = 0; i < error.message.length; i++) {
-						console.log(error.message[i]);
-					}
-
-					this.errorEmpty.classList.add('signin__error_active');
-				});
-		});
 	}
 }
 
